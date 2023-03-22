@@ -1,0 +1,29 @@
+package uscs;
+public class DlistNode {
+public int item;public DlistNode next;public DlistNode prev;		public DlistNode(){	this.item = 0;	this.next = null;	this.prev = null;			}
+public DlistNode (int item) {	this.item = item;	this.next = null;	this.prev = null;}
+
+
+
+package uscs;
+public class DList {public int size;public DlistNode head;public DlistNode tail;
+public DList() {	this.size = 0;	this.head = null;	this.tail = null;}
+public DList(int item) {	DlistNode trab = new DlistNode(item);	trab.next = null;	trab.prev = null;	this.head = trab;	this.tail = trab;	this.size = 1;}
+public void imprimeFirst() {		if(this.head == null) {		System.out.println("Vazio");	}else {		System.out.println(this.head.item);	}}
+public void imprimeLast() {		if(this.size == 0) {		System.out.println("Vazio");	}else {		System.out.println(this.tail.item);	}}
+public void insereFim(int item) {	DlistNode novoNode = new DlistNode(item);	if(this.size == 0) {		this.head = novoNode;		this.tail = novoNode;		size++;			} else {		this.tail.next = novoNode;		this.tail = novoNode;		size++;	}	}
+
+public void insereInicio(int item) {	DlistNode novoNode = new DlistNode(item);	if(this.size == 0) {		this.head = novoNode;		this.tail = novoNode;		size++;			} else {		this.head.prev = novoNode;		novoNode.next = this.head;		this.head = novoNode;		this.size++;	}}
+public void imprimeLista(){	int contador = 1;	DlistNode p = this.head;		if(this.size == 0) {		System.out.println("Lista Vazia");	} else {		while ( p != null ) {			System.out.print ("\nNó:" + ++contador) ;			System.out.print (" Item: " + p.item + "\n");			p = p.next;	}	}}
+public void imprimeLista2(){	int contador = 0;	DlistNode p = this.tail;		if(this.size == 0) {		System.out.println("Lista Vazia");	} else {		while ( p != null ) {			System.out.print ("\nNó:" + ++contador) ;			System.out.print (" Item: " + p.item + "\n");			p = p.prev;	}	}}
+
+public void deleteFirst() {	if(this.size == 1) {		this.head = null;		this.tail = null;		size--;	} else {		this.head.next = this.head.next.next;		this.head.prev = null;		size--;	}}	public void deleteLast() {		if(this.size == 0) {			this.head = null;			this.tail = null;			size--;		} else {			this.tail = this.tail.prev;			this.tail.next = null;			size--;		}		}
+
+
+
+
+}
+
+
+
+
