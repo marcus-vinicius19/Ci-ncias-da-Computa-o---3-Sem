@@ -1,0 +1,20 @@
+1 - Select * FROM livro;
+
+2 - Select Nome, Fone FROM usuario;
+
+3 - Select NomeAutor, Titulo FROM autores_livro Inner Join livro on  autores_livro.Idlivro = livro.IdLivro;
+
+4 - SELECT Nome FROM teste.usuario Where NoCartao not in  (SELECT Nocartao FROM teste.livros_emprestados);
+
+5 - SELECT NomeFilial, livros_emprestados.IdFilial, COUNT(livros_emprestados.IdFilial) AS TotalLivros FROM livros_emprestados inner join filial_biblioteca on livros_emprestados.IdFilial = filial_biblioteca.IdFilial group by filial_biblioteca.IdFilial
+
+
+6 - SELECT Nome, Endereco, Count(livros_emprestados.NoCartao) as total  FROM teste.livros_emprestados Inner join usuario on livros_emprestados.NoCartao = usuario.NoCartao group by usuario.NoCartao Having total > 5;
+
+7 - SELECT NomeAutor, Titulo, No_De_Copias FROM teste.livro inner join autores_livro on livro.IdLivro = autores_livro.IdLivro inner join copias_livro on livro.IdLivro = copias_livro.IdLivro Where NomeAutor = 'Stephen King' And IdFilial = 1;
+
+8 - SELECT No_De_Copias FROM teste.copias_livro Where IdLivro = 1 and IdFilial = 2;
+
+9 -SELECT titulo, nome, endereco, DataDevolucao FROM teste.livros_emprestados Inner Join livro on livros_emprestados.IdLivro = livro.IdLivro Inner Join usuario on livros_emprestados.NoCartao = usuario.NoCartao Where DataDevolucao= '2019-10-30' and IdFilial = 2;
+
+10 - SELECT editora.nome, editora.fone FROM teste.editora inner join livro on editora.Nome = livro.NomeEditora inner join livros_emprestados on livro.idlivro = livros_emprestados.idlivro inner join usuario on livros_emprestados.NoCartao = usuario.NoCartao Where usuario.NoCartao = 1;
