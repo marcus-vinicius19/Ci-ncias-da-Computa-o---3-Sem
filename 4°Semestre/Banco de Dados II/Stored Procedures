@@ -1,0 +1,231 @@
+1.
+
+DROP DATABASE IF EXISTS teste;
+CREATE DATABASE teste;
+USE teste;
+
+CREATE TABLE EMPREGADO (
+    cod_empregado INT,
+    cod_depto INT,
+    nome VARCHAR(50),
+    dt_nascimento DATE,
+    sexo CHAR(1),
+    dt_admissao DATE,
+    est_civil CHAR(1),
+    salario NUMERIC(10,2),
+    PRIMARY KEY (cod_empregado)
+);
+
+CREATE TABLE Depto (
+    cod_depto INT,
+    nomeDepto VARCHAR(50),
+    PRIMARY KEY (cod_depto)
+);
+
+CREATE TABLE dependente (
+    cod_dependente INT,
+    cod_empregado INT,
+    nome VARCHAR(50),
+    dt_nascimento DATE,
+    sexo CHAR(1),
+    PRIMARY KEY (cod_dependente),
+    FOREIGN KEY (cod_empregado) REFERENCES EMPREGADO (cod_empregado)
+);
+
+2.
+
+INSERT INTO Depto (cod_depto, nomeDepto) VALUES
+(1, 'RH');
+
+INSERT INTO EMPREGADO (cod_empregado, cod_depto, nome, dt_nascimento, sexo, dt_admissao, est_civil, salario) VALUES
+(1, 1, 'JoÃO', '1990-05-15', 'M', '2015-03-10', 'S', 55000.00);
+
+3. 
+DELIMITER //
+
+CREATE PROCEDURE CalculaEstatisticasDepartamento(IN codigo_departamento INT)
+BEGIN
+    DECLARE soma_salarios NUMERIC(10,2);
+    DECLARE maior_salario NUMERIC(10,2);
+    DECLARE menor_salario NUMERIC(10,2);
+    DECLARE total_funcionarios INT;
+
+    SELECT SUM(salario) INTO soma_salarios
+    FROM EMPREGADO
+    WHERE cod_depto = codigo_departamento;
+
+    SELECT MAX(salario) INTO maior_salario
+    FROM EMPREGADO
+    WHERE cod_depto = codigo_departamento;
+
+    SELECT MIN(salario) INTO menor_salario
+    FROM EMPREGADO
+    WHERE cod_depto = codigo_departamento;
+
+    SELECT COUNT(*) INTO total_funcionarios
+    FROM EMPREGADO
+    WHERE cod_depto = codigo_departamento;
+
+    SET @media_salarios = soma_salarios / total_funcionarios;
+
+    SELECT 
+        soma_salarios AS SomaSalarios,
+        @media_salarios AS MediaSalarios,
+        maior_salario AS MaiorSalario,
+        menor_salario AS MenorSalario;
+END;
+//
+
+DELIMITER ;
+
+
+CALL CalculaEstatisticasDepartamento(1); 
+
+
+
+4.
+DELIMITER //
+
+CREATE PROCEDURE ContaFuncionariosPorSexo(IN nome_departamento VARCHAR(50))
+BEGIN
+    DECLARE total_masculino INT;
+    DECLARE total_feminino INT;
+
+    SELECT 
+        SUM(CASE WHEN sexo = 'M' THEN 1 ELSE 0 END) INTO total_masculino
+    FROM EMPREGADO
+    WHERE cod_depto = (SELECT cod_depto FROM Depto WHERE nomeDepto = nome_departamento);
+
+    SELECT 
+        SUM(CASE WHEN sexo = 'F' THEN 1 ELSE 0 END) INTO total_feminino
+    FROM EMPREGADO
+    WHERE cod_depto = (SELECT cod_depto FROM Depto WHERE nomeDepto = nome_departamento);
+
+    SELECT 
+        total_masculino AS FuncionariosMasculinos,
+        total_feminino AS FuncionariosFemininos;
+END;
+//
+
+DELIMITER ;
+
+CALL ContaFuncionariosPorSexo('RH');
+
+5.
+DELIMITER //
+
+CREATE PROCEDURE InserirDepartamento(IN codigo_departamento INT, IN nome_departamento VARCHAR(50))
+BEGIN
+    INSERT INTO Depto (cod_depto, nomeDepto) VALUES (codigo_departamento, nome_departamento);
+END;
+//
+
+DELIMITER ;
+
+CALL InserirDepartamento(4, 'NEW'); 
+
+6.
+DELIMITER //
+
+CREATE PROCEDURE AumentoSalarioFeminino()
+BEGIN
+    UPDATE EMPREGADO
+    SET salario = salario * 1.05
+    WHERE sexo = 'F';
+END;
+//
+
+DELIMITER ;
+
+CALL AumentoSalarioFeminino();
+
+
+7.
+
+DELIMITER //
+
+CREATE PROCEDURE AumentoSalarioMasculino(IN percentual_aumento DECIMAL(5,2))
+BEGIN
+    UPDATE EMPREGADO
+    SET salario = salario * (1 + percentual_aumento / 100)
+    WHERE sexo = 'M';
+END;
+//
+
+DELIMITER ;
+CALL AumentoSalarioMasculino(10); 
+
+8.
+
+CREATE TABLE Sexo (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(10) NOT NULL
+);
+
+-- Inserir valores na tabela Sexo
+INSERT INTO Sexo (descricao) VALUES ('M'), ('F');
+
+ALTER TABLE EMPREGADO
+ADD FOREIGN KEY (sexo_id) REFERENCES Sexo(id);
+
+DELIMITER //
+
+CREATE PROCEDURE AumentoSalarioMasculino(IN percentual_aumento DECIMAL(5,2))
+BEGIN
+    UPDATE EMPREGADO
+    SET salario = salario * (1 + percentual_aumento / 100)
+    WHERE sexo_id = (SELECT id FROM Sexo WHERE descricao = 'M');
+END;
+//
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE ContaFuncionariosPorSexo(IN nome_departamento VARCHAR(50), IN sexo VARCHAR(1))
+BEGIN
+    DECLARE total_funcionarios INT;
+
+    SELECT COUNT(*) INTO total_funcionarios
+    FROM EMPREGADO e
+    JOIN Sexo s ON e.sexo_id = s.id
+    WHERE e.cod_depto = (SELECT cod_depto FROM Depto WHERE nomeDepto = nome_departamento)
+    AND s.descricao = sexo;
+
+    SELECT total_funcionarios AS TotalFuncionarios;
+END;
+//
+
+DELIMITER ;
+
+
+9.
+
+CREATE TABLE EstadoCivil (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(20) NOT NULL
+);
+
+-- Inserir valores na tabela EstadoCivil
+INSERT INTO EstadoCivil (descricao) VALUES ('Solteiro'), ('Casado'), ('Divorciado'), ('Viúvo');
+
+ALTER TABLE EMPREGADO
+ADD COLUMN est_civil_id INT,
+ADD FOREIGN KEY (est_civil_id) REFERENCES EstadoCivil(id);
+
+
+10.
+
+DELIMITER //
+
+CREATE PROCEDURE MostrarEmpregados()
+BEGIN
+    SELECT *
+    FROM EMPREGADO;
+END;
+//
+
+DELIMITER ;
+
+
+
